@@ -2,56 +2,89 @@
 <script src="node_modules/chart.js/dist/Chart.bundle.min.js"></script>
 
 <body>
-    <canvas id="myChart" width="400px" height="400px"></canvas>
-    <script>
-        var data = [
-            { x: 3, y: 3, type: "tag1" },
-            { x: 3, y: 13, type: "tag1" },
-            { x: -12, y: 5, type: "tag2" },
-            { x: 3, y: -1, type: "tag4" },
-            { x: -1, y: 2, type: "tag2" },
-            { x: -7, y: 7, type: "tag2" },
-            { x: -4, y: -6, type: "tag3" },
-            { x: 3, y: -13, type: "tag4" },
-            { x: 13, y: -14, type: "tag4" }
-        ];
+    <div style="width: 600px; height: 600px;">
+        <canvas id="myChart"></canvas>
+        <script>
+            var data = [
+                { x: 3, y: 3, type: "tag1" },
+                { x: 3, y: 13, type: "tag1" },
+                { x: -12, y: 5, type: "tag2" },
+                { x: 3, y: -1, type: "tag4" },
+                { x: -1, y: 2, type: "tag2" },
+                { x: -7, y: 7, type: "tag2" },
+                { x: -4, y: -6, type: "tag3" },
+                { x: 3, y: -13, type: "tag4" },
+                { x: 13, y: -14, type: "tag4" }
+            ];
 
-        var colors = []
-        var colorMap = { "tag1": "red", "tag2": "blue", "tag3": "orange", "tag4": "green" };
+            var colors = []
+            var colorMap = { "tag1": "red", "tag2": "blue", "tag3": "orange", "tag4": "green" };
 
-        // Find the largest value and use that for the quandrant axis size
-        // Otherwise we should scale all values down to a set range, say 0-100
-        var maxRange = 0;
-        data.forEach(d => {
-            if (Math.abs(d.x) > maxRange) {
-                maxRange = Math.abs(d.x);
-            }
-            if (Math.abs(d.y) > maxRange) {
-                maxRange = Math.abs(d.y)
-            }
-            colors.push(colorMap[d.type]);
-        });
+            // Find the largest value and use that for the quandrant axis size
+            // Otherwise we should scale all values down to a set range, say 0-100
+            var maxRange = 0;
+            data.forEach(d => {
+                if (Math.abs(d.x) > maxRange) {
+                    maxRange = Math.abs(d.x);
+                }
+                if (Math.abs(d.y) > maxRange) {
+                    maxRange = Math.abs(d.y)
+                }
+                colors.push(colorMap[d.type]);
+            });
 
-        var ctx = document.getElementById('myChart');
-        var myChart = new Chart(ctx, {
-            type: 'scatter',
-            data: {
-                datasets: [{
-                    label: null,
-                    data: data,
-                    backgroundColor: colors,
-                    radius: 9,
-                    borderColor: colors,
-                    borderWidth: 3
-                }]
-            },
-            options: {
-                legend: {
-                    display: false
+            // Draw quadrant tags
+            Chart.pluginService.register({
+                beforeDraw: function (chart) {
+                    var width = chart.chart.width;
+                    var height = chart.chart.height;
+                    var ctx = chart.chart.ctx;
+
+                    ctx.restore();
+                    ctx.font = "12px Arial";
+                    ctx.color = "black";
+                    ctx.fillText("tag2", 20, 20);
+                    ctx.fillText("tag1", width - 80, 20);
+                    ctx.fillText("tag3", 20, height - 20);
+                    ctx.fillText("tag4", width - 80, height - 20);
+                    ctx.save();
+                }
+            });
+
+            var ctx = document.getElementById('myChart');
+            var myChart = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: null,
+                        data: data,
+                        backgroundColor: colors,
+                        radius: 5,
+                        borderColor: colors,
+                        borderWidth: 3
+                    }]
                 },
-                scales: {
-                    xAxes: [
-                        {
+                options: {
+                    legend: {
+                        display: false
+                    },
+                    scales: {
+                        xAxes: [
+                            {
+                                ticks: {
+                                    display: false,
+                                    suggestedMin: 0,
+                                    beginAtZero: true,
+                                    min: -maxRange,
+                                    max: maxRange
+                                },
+                                gridLines: {
+                                    display: true,
+                                    color: 'transparent',
+                                    zeroLineColor: '#000000'
+                                }
+                            }],
+                        yAxes: [{
                             ticks: {
                                 display: false,
                                 suggestedMin: 0,
@@ -65,27 +98,15 @@
                                 zeroLineColor: '#000000'
                             }
                         }],
-                    yAxes: [{
-                        ticks: {
-                            display: false,
-                            suggestedMin: 0,
-                            beginAtZero: true,
-                            min: -maxRange,
-                            max: maxRange
-                        },
                         gridLines: {
-                            display: true,
-                            color: 'transparent',
-                            zeroLineColor: '#000000'
+                            display: false
                         }
-                    }],
-                    gridLines: {
-                        display: false
                     }
                 }
-            }
-        });
-    </script>
+            });
+
+        </script>
+    </div>
 </body>
 
 </html>
